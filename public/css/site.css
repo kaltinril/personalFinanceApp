@@ -1,0 +1,48 @@
+body {
+	background: #FAFAFA;
+}
+
+#insecure {
+    color: red;
+    font-weight:bold;
+}
+
+#errorMsg {
+    color: red;
+	padding: 20px;
+}
+
+#successMsg {
+	color: blue;
+	padding: 20px;
+}
+
+#loginPage, #signupPage {
+	padding: 40px 40px;
+	font: 13px/100% Verdana, sans-serif;
+	overflow: hidden;
+    	text-align: center;
+}
+
+#loginForm, #signupForm {
+	text-align: center; 
+	display: inline-block; 
+	padding: 20px; 
+	width: auto; 
+	background: #FAFAFA;
+	border:5px solid green; 
+}
+
+#addPurchaseForm, #addCategoryForm, #addLocationForm {
+	text-align: center; 
+	display: inline-block; 
+	padding: 20px; 
+	width: auto;  
+}
+
+#logoutForm {
+	text-align: center; 
+	display: table-row; 
+	padding: 20px; 
+	width: auto;  
+}
