@@ -8,3 +8,8 @@ Currently built for use on a Synology NAS device.  It takes advantage of the bui
 includes/db.php file should be changed for your own use.  The included file is blank.
 
 sql files are included to configure the DB.
+
+## License
+
+Copyright (c) 2014 Jeremy Harris (https://github.com/frigidplanet/personalFinanceApp)
+Licensed under the GPL Version 3 licenses.
