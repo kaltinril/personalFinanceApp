@@ -29,35 +29,42 @@
 <html lang="en">
   <head>
     <title>Financials</title>
+	<link rel="stylesheet" href="css/site.css" />
 	<link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/themes/smoothness/jquery-ui.css" />
 	<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
 	<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
 	
-	<script type="text/javascript" src="../lib/flexigrid-1.1/js/flexigrid.pack.js"></script>
-    <link rel="stylesheet" href="../lib/flexigrid-1.1/css/flexigrid.pack.css" />
+	<script type="text/javascript" src="../lib/flexigrid-1.1/js/flexigrid.js"></script>
+    <link rel="stylesheet" href="../lib/flexigrid-1.1/css/flexigrid.css" />
 	<style>
-		body { font-size: 62.5%; }
-		label, input { display:block; }
 		input.text { margin-bottom:12px; width:95%; padding: .4em; }
+		select.text { margin-bottom:12px; width:95%; padding: .4em; }
 		fieldset { padding:0; border:0; margin-top:25px; }
-		h1 { font-size: 1.2em; margin: .6em 0; }
-		div#users-contain { width: 350px; margin: 20px 0; }
-		div#users-contain table { margin: 1em 0; border-collapse: collapse; width: 100%; }
-		div#users-contain table td, div#users-contain table th { border: 1px solid #eee; padding: .6em 10px; text-align: left; }
 		.ui-dialog .ui-state-error { padding: .3em; }
 		.validateTips { border: 1px solid transparent; padding: 0.3em; }
 	</style>
 	<script type="text/javascript">
 	
+		var dialogFields;
+		var testVal;
+		
+		window.onload = function() {
+			updateLocations();
+			updateCategories();
+			setDatePickerToday();
+		};
+	
 		$(document).ready(function() {
 		
-			var date = $( "#date" ),
-				location = $( "#location" ),
-				category = $( "#category" ),
-				amount = $( "#amount" ),
-				allFields = $( [] ).add( date ).add( location ).add( category ).add( amount ),
-				tips = $( ".validateTips" );
-		
+			var tips = $( ".validateTips" );
+			
+			$("#purchLoc").change(function() {				
+				updateCategories();
+			});
+				
+			//dialogFields = $( [] ).add( date ).add( location ).add( category ).add( amount );
+			dialogFields = $([]).add($(".addPurchFormField"));
+			
 			$("#includedLogoutForm").load("utils/logoutForm.html");
 			
 			$("#tabs").tabs({
@@ -82,7 +89,7 @@
 			});
 	
 			$("#flexId").flexigrid({
-				url : 'purchases.php',
+				url : 'getPurchases.php',
 				dataType : 'json',
 				colModel : [ {
 						display : 'Id',
@@ -158,29 +165,34 @@
 				buttons: {
 					"Create": function() {
 						var bValid = true;
-						allFields.removeClass( "ui-state-error" );
-						bValid = bValid && checkLength( name, "username", 3, 16 );
-						bValid = bValid && checkLength( email, "email", 6, 80 );
-						bValid = bValid && checkLength( password, "password", 5, 16 );
-						bValid = bValid && checkRegexp( name, /^[a-z]([0-9a-z_])+$/i, "Username may consist of a-z, 0-9, underscores, begin with a letter." );
-						// From jquery.validate.js (by joern), contributed by Scott Gonzalez: http://projects.scottsplayground.com/email_address_validation/
-						bValid = bValid && checkRegexp( email, /^((([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+(\.([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+)*)|((\x22)((((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(([\x01-\x08\x0b\x0c\x0e-\x1f\x7f]|\x21|[\x23-\x5b]|[\x5d-\x7e]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(\\([\x01-\x09\x0b\x0c\x0d-\x7f]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))))*(((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(\x22)))@((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.?$/i, "eg. ui@jquery.com" );
-						bValid = bValid && checkRegexp( password, /^([0-9a-zA-Z])+$/, "Password field only allow : a-z 0-9" );
-						if ( bValid ) {
-							$( "#users tbody" ).append( "<tr>" +
-							"<td>" + name.val() + "</td>" +
-							"<td>" + email.val() + "</td>" +
-							"<td>" + password.val() + "</td>" +
-							"</tr>" );
-							$( this ).dialog( "close" );
-						}
+						dialogFields.removeClass( "ui-state-error" );
+						$.ajax({
+							url: "addPurchase.php",
+							type: 'post',
+							data: dialogFields.serialize(),
+							dataType: 'json',
+							async: false,
+							success: function(data) {
+								if (data[0].success === true) {
+									$( "#dialog-form" ).dialog( "close" );
+									$(".flexClass").flexReload();
+								} else {
+									$( '#formErrorMsg' ).html( data[0].message );
+								}
+							}
+						});
 					},
 					Cancel: function() {
 						$( this ).dialog( "close" );
 					}
 				},
 				close: function() {
-					allFields.val( "" ).removeClass( "ui-state-error" );
+					dialogFields.val( "" ).removeClass( "ui-state-error" );
+					dialogFields.val("");
+					$( '#formErrorMsg' ).empty();
+					$('#purchCat > option').remove();
+					setDatePickerToday();
+					//$('#addPurchaseForm').tooltipster('hide');
 				}
 			});
 		
@@ -231,26 +243,126 @@
 			}
 			else if (com == 'Add') {
 				$( "#dialog-form" ).dialog( "open" );
-				// collect the data
-				/* var EmpID = prompt("Please enter the Employee ID","5");
-				var Name = prompt("Please enter the Employee Name","Mark");
-				var PrimaryLanguage = prompt("Please enter the Employee's Primary Language","php");
-				var FavoriteColor = prompt("Please enter the Employee's Favorite Color","Tan");
-				var FavoriteAnimal = prompt("Please enter the Employee's Favorite Animal","Dog");
-
-				// call the ajax to save the data to the session
-				$.get('purchases.php', { Add: true, EmpID: EmpID, Name: Name, PrimaryLanguage: PrimaryLanguage, FavoriteColor: FavoriteColor, FavoritePet: FavoriteAnimal  }
-					, function(){
-						// when ajax returns (callback), update the grid to refresh the data
-						$(".flexClass").flexReload();
-				}); */
 			}
+		}
+		
+		function setDatePickerToday() {
+			$('#purchDate').datepicker().datepicker("setDate", new Date());
+		}
+		
+		//Use ajax to get the data from the DB
+		function getPurchases() {
+			var result = null;
+
+			$.ajax({
+				url: "getPurchases.php",
+				type: 'get',
+				dataType: 'json',
+				async: false,
+				success: function(data) {
+					//console.log(data);
+					if (data[0].success === true) {
+						result = data[0].message;
+					} else {
+						$( '#errorMsg' ).html( data[0].message );
+					}
+				}
+			});
+
+			return result;
+		}
+		
+		function updateLocations() {
+		
+			//get the data
+			var data = getLocations();
+			
+			//Clear the dropdown options
+			$('#purchLoc > option').remove();
+			
+			//console.log(data);
+
+			//Set the first one to a blank value
+			$('#purchLoc').append('<option value="" selected>Select Option...</option>');
+			
+			//update the grid
+			$(data).each(function(index, element){
+				$('#purchLoc').append(
+					'<option value='+element.id+'>'+element.value+'</option>'
+				);       
+			})
+		
+		}
+		
+		//Use ajax to get the data from the DB
+		function getLocations() {
+			var result = null;
+
+			$.ajax({
+				url: "getLocations.php",
+				type: 'get',
+				dataType: 'json',
+				async: false,
+				success: function(data) {
+					//console.log(data);
+					if (data[0].success === true) {
+						result = data[0].message;
+					} else {
+						$( '#errorMsg' ).html( data[0].message );
+					}
+				}
+			});
+
+			return result;
+		}
+		
+		function updateCategories() {
+		
+			//get the data
+			var data = getCategoriesByLocation();
+			
+			//Clear the dropdown options
+			$('#purchCat > option').remove();
+			
+			//console.log(data);
+
+			//update the grid
+			$(data).each(function(index, element){
+				$('#purchCat').append(
+					'<option value='+element.id+'>'+element.value+'</option>'
+				);   
+			})
+		
+		}
+		
+		//Use ajax to get the data from the DB
+		function getCategoriesByLocation() {
+			var result = null;
+
+			$.ajax({
+				url: "getCategoriesByLocation.php",
+				type: 'get',
+				data: { locationId: $('#purchLoc').val() },
+				dataType: 'json',
+				async: false,
+				success: function(data) {
+					//console.log(data);
+					if (data[0].success === true) {
+						result = data[0].message;
+					} else {
+						$( '#errorMsg' ).html( data[0].message );
+					}
+				}
+			});
+
+			return result;
 		}
 		
 	</script>
   </head>
   <body>
 	<div id="includedLogoutForm"></div>
+	<div id="errorMsg"></div>
     <div id="tabs">
       <ul>
         <li>
@@ -270,16 +382,17 @@
 	</div>
 	<div id="dialog-form" title="Add new purchase">
 		<p class="validateTips">All fields are required.</p>
+		<div id="formErrorMsg"></div>
 		<form>
 			<fieldset>
-				<label for="date">Date</label>
-				<input type="date" name="date" id="date" class="text ui-widget-content ui-corner-all">
-				<label for="location">Location</label>
-				<input type="text" name="location" id="location" value="" class="text ui-widget-content ui-corner-all">
-				<label for="category">Categpry</label>
-				<input type="text" name="category" id="category" value="" class="text ui-widget-content ui-corner-all">
-				<label for="amount">Amount</label>
-				<input type="number" name="amount" id="amount" value="" class="text ui-widget-content ui-corner-all">
+				<label for="purchDate">Date</label>
+				<input name="purchDate" id="purchDate" class="addPurchFormField text ui-widget-content ui-corner-all">
+				<label for="purchLoc">Location</label>
+				<select name="purchLoc" id="purchLoc" class="addPurchFormField text ui-widget-content ui-corner-all"></select>
+				<label for="purchCat">Category</label>
+				<select name="purchCat" id="purchCat" class="addPurchFormField text ui-widget-content ui-corner-all"></select>
+				<label for="purchAmt">Amount</label>
+				<input type="number" name="purchAmt" id="purchAmt" value="" class="addPurchFormField text ui-widget-content ui-corner-all">
 			</fieldset>
 		</form>
 	</div>
