@@ -77,7 +77,7 @@
 		
 		$hash_pwd = cryptPass($pwd);
 		
-		if ( !($stmt = $mysqli->prepare("insert into users (user_name, passwd) values (?, ?)")) ) {
+		if ( !($stmt = $mysqli->prepare("insert into users (user_name, password) values (?, ?)")) ) {
 			$message .= "prepare failed: (" . $mysqli->errno . ")" . $mysqli->error;
 			generate_return();
 			return;

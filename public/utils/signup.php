@@ -31,7 +31,7 @@ session_start();
 	<link rel="stylesheet" type="text/css" href="../../lib/tooltipster-3.2.3/css/tooltipster.css" />
 	<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
 	<script src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.12.0/jquery.validate.min.js"></script>
-	<script type="text/javascript" src="../lib/jquery.validate.min.js"></script>
+<!--	<script type="text/javascript" src="../lib/jquery.validate.min.js"></script> -->
 	<script type="text/javascript" src="../../lib/tooltipster-3.2.3/js/jquery.tooltipster.min.js"></script>
 	<script type="text/javascript">
 	
