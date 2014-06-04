@@ -31,7 +31,7 @@
 	
 	if (array_key_exists("username", $_POST) && array_key_exists("password", $_POST)) {
 	
-		if ( !($stmt = $mysqli->prepare("select user_id, passwd from users where user_name = ?")) ) {
+		if ( !($stmt = $mysqli->prepare("select user_id, password from users where user_name = ?")) ) {
 			$message .= "prepare failed: (" . $mysqli->errno . ")" . $mysqli->error;
 			generate_return();
 			return;
